@@ -68,7 +68,8 @@ bool CSixMensMorrisBoard::AdjacentPositions(int from, int to){
 }
 
 void CSixMensMorrisBoard::ResetBoard(){
-    for(int Index = 0; Index < SIX_MENS_MORRIS_PLAYERS; Index++){
+    for(int Index = 0; Index < SIX_MENS_MORRIS_PLAYERS; Index++){ // SIX_MENS_MORRIS_PLAYERS
+    // is a trackinga number of how many unplaced pieces left
         DUnplacedPieces[Index] = SIX_MENS_MORRIS_PIECES;
     }
     for(int Index = 0; Index < SIX_MENS_MORRIS_POSITIONS; Index++){
@@ -102,7 +103,7 @@ bool CSixMensMorrisBoard::GameOver() const{
     return DTurn != SIX_MENS_MORRIS_PLAYER_R and DTurn != SIX_MENS_MORRIS_PLAYER_W;
 }
 
-std::string CSixMensMorrisBoard::ToString() const{
+std::string CSixMensMorrisBoard::ToString() const{ // no problem inside
     std::stringstream OutStream;
     int CapturedR, CapturedW;
     
