@@ -444,7 +444,6 @@ TEST(SixMensMorrisBoardTest, TwoPieceGameOverTest){
 
     EXPECT_TRUE(Board.GameOver());
 
-    // case 2 : opponent doesn't have legal moves
 
 
 
@@ -456,10 +455,114 @@ TEST(SixMensMorrisBoardTest, NoMoveGameOverTest){
 
     CSixMensMorrisBoard Board;
 
+    Board.Place('R', 0);// 1
+    Board.Place('W', 3);
+
+    Board.Place('R', 1);// 2
+    Board.Place('W', 4);
+
+    Board.Place('R', 2);// 3
+    // create a  mill
+
+    Board.Remove('W', 3);// 3
+
+    Board.Place('W', 3);
+
+    EXPECT_EQ(Board.UnplacedPieces('R'), 3);
+    EXPECT_EQ(Board.UnplacedPieces('W'), 3);
+
+    Board.Place('R', 9);// 4
+    Board.Place('W', 8);
+
+    Board.Place('R', 15);// 5
+    // a mill
+
+    Board.Remove('W', 8);
+
+    Board.Place('W', 8);
+
+    Board.Place('R', 12);// 6
+    Board.Place('W', 5);
+
+    EXPECT_EQ(Board.UnplacedPieces('R'), 0);
+    EXPECT_EQ(Board.UnplacedPieces('W'), 0);
+
+    if(Board.UnplacedPieces('W') != 0)
+    {
+        throw "  unplaced tracking has some issue ";
+    }
+
+    // start moving
+
+    if(Board.PlayerTurn() != 'R')
+    {
+        throw "  Player turn has some issue";
+    }
+
+    Board.Move('R', 0, 6);
+    Board.Move('W', 3, 7);
+
+    Board.Move('R', 1, 0);
+    Board.Move('W', 4, 1);
+
+    Board.Move('R', 15, 14);
+    if(Board.CanMove('W', 3))
+    {
+        throw "  CanMove has some problem  ";
+    }
+    else{
+        std::cout << "  this function is fine !! YEAH!";
+    }
+    Board.Move('W', 3, 4);
+
+    Board.Move('R', 7, 3);
+    Board.Move('W', 8, 12);
+
+    if(Board.CanMove('W', 1) || Board.CanMove('W', 4) || Board.CanMove('W', 5) || Board.CanMove('W', 8))
+    {
+        throw "  Can Move is not right   ";
+    }
+    else{
+        std::cout << "   no problems " << std::endl;
+    }
+
+    EXPECT_TRUE(Board.GameOver());
 
 }
 
 TEST(SixMensMorrisBoardTest, BadParametersTest){
     // Needs to test that correct return upon bad parameters
+    CSixMensMorrisBoard Board;
+    Board.Place('R', 0);
+    Board.Place('W', 1);
+
+    EXPECT_FALSE(Board.Place('Z', 2));
+    EXPECT_FALSE(Board.Place('R', 88));
+
+    EXPECT_EQ(Board.UnplacedPieces('Z'), -1);
+    EXPECT_EQ(Board.PlayerAtPosition(-1), '\0');
+
+    EXPECT_FALSE(Board.CanMove('Z', 0));
+    EXPECT_FALSE(Board.CanMove('R', 88));
+
+    EXPECT_FALSE(Board.CanRemove('Z'));
+    
+    EXPECT_FALSE(Board.Move('Z', 0, 1));
+    EXPECT_TRUE(Board.Move('W', 1, 2));
+    EXPECT_FALSE(Board.Move('W', 2, 8));
+
+    EXPECT_FALSE(Board.Remove('Z', 0));
+    EXPECT_TRUE(Board.Remove('R', 0));
+    EXPECT_FALSE(Board.Remove('W', 88));
+
+
+
+
+
+
+
+
+
+    
 }
 
