@@ -52,7 +52,7 @@ OBJ_DIR = ./obj
 PROJ_OBJS = $(OBJ_DIR)/SixMensMorrisBoard.o
 TEST_OBJ = $(OBJ_DIR)/testsixmensmorris.o
 
-CXXFLAGS = -I $(INCLUDE_DIR) -Wall --std::c++14
+CXXFLAGS = -I $(INCLUDE_DIR) -Wall --std=c++14
 TESTLDFLAGS = -lgtest -lgtest_main -lpthread
 TEST_NAME = testsixmen
 
@@ -68,8 +68,13 @@ $(TESTBIN_DIR)/$(TEST_NAME): $(PROJ_OBJS) $(TEST_OBJ)
 $(TEST_OBJ): $(SRC_DIR)/testsixmensmorris.cpp $(INCLUDE_DIR)/SixMensMorrisBoard.h
 	$(CXX) $(CXXFLAGS) $(SRC_DIR)/testsixmensmorris.cpp -c -o $(OBJ_DIR)/testsixmensmorris.o
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CXX) $(CFLAGS) $(CPPFLAGS) $(DEFINES) $(INCLUDE) -I ./googletest/googletest/include -c $< -o $@
+
+# $(ODIR)/%.o: %.c $(DEPS)
+#$(OBJ): $(ODIR)/%.o: src/%.c $(DEPS)
+# $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+# $(OBJ_DIR): $(SRC_DIR)/SixMensMorrisBoard.cpp $(INCLUDE_DIR)/SixMensMorrisBoard.h
+$(OBJ_DIR)/SixMensMorrisBoard.o: $(SRC_DIR)/SixMensMorrisBoard.cpp $(INCLUDE_DIR)/SixMensMorrisBoard.h
+	$(CXX) $(SRC_DIR)/SixMensMorrisBoard.cpp -c -o $(OBJ_DIR)/SixMensMorrisBoard.o $(CXXFLAGS)
 
 directories: $(BIN_DIR) $(TESTBIN_DIR) $(OBJ_DIR)
 
