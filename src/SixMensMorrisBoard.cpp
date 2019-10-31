@@ -79,6 +79,7 @@ void CSixMensMorrisBoard::ResetBoard(){
 }
 
 char CSixMensMorrisBoard::PlayerTurn() const{
+    std::cout << "   the player turn is   " << DTurn << std::endl;
     return toupper(DTurn);
 }
 
@@ -94,7 +95,7 @@ int CSixMensMorrisBoard::UnplacedPieces(char player) const{
         return DUnplacedPieces[0];
     }
     if(SIX_MENS_MORRIS_PLAYER_W == player){
-        return DUnplacedPieces[1];
+        return DUnplacedPieces[1]; 
     }
     return -1;
 }
@@ -105,18 +106,24 @@ bool CSixMensMorrisBoard::GameOver() const{
 
 std::string CSixMensMorrisBoard::ToString() const{ // no problem inside
     std::stringstream OutStream;
-    int CapturedR, CapturedW;
-    
+    int CapturedR, CapturedW;    
     CapturedR = SIX_MENS_MORRIS_PIECES - DUnplacedPieces[0];
+    std::cout << "  capture R is   >>> " << CapturedR << std::endl;
     CapturedW = SIX_MENS_MORRIS_PIECES - DUnplacedPieces[1];
+        std::cout << "  capture W is   >>> " << CapturedW << std::endl;
+
     for(int Index = 0; Index < SIX_MENS_MORRIS_POSITIONS; Index++){
         if(DPositions[Index] == SIX_MENS_MORRIS_PLAYER_R){
-            CapturedR--;   
+            CapturedR--;  
+            CapturedW++;  
         }
         else if(DPositions[Index] == SIX_MENS_MORRIS_PLAYER_W){
-            CapturedW--;   
+            CapturedR--;
+            CapturedW++;   
         }
     }
+    // still need to figure out how to fix Dturn so it will change by itself
+    // OutStream<<(DTurn == SIX_MENS_MORRIS_PLAYER_R ? ">RU:" : " RU:")<<DUnplacedPieces[0]<<" RC:"<<CapturedW<<(DTurn == SIX_MENS_MORRIS_PLAYER_W ? " >WU:" : "  WU:")<<DUnplacedPieces[1]<<" WC:"<<CapturedR<<std::endl;
     OutStream<<(DTurn == SIX_MENS_MORRIS_PLAYER_R ? ">RU:" : " RU:")<<DUnplacedPieces[0]<<" RC:"<<CapturedW<<(DTurn == SIX_MENS_MORRIS_PLAYER_W ? " >WU:" : "  WU:")<<DUnplacedPieces[1]<<" WC:"<<CapturedR<<std::endl;
     OutStream<<DPositions[0x0]<<"---------"<<DPositions[0x1]<<"---------"<<DPositions[0x2]<<"      0---1---2"<<std::endl;
     OutStream<<"|         |         |      | 3-4-5 |"<<std::endl;
@@ -167,9 +174,13 @@ CSixMensMorrisBoard::operator std::string() const{
     return OutStream.str();
 }
 
-bool CSixMensMorrisBoard::Place(char player, int where){
+bool CSixMensMorrisBoard::Place(char player, int where){  
+// it still need to check the previous one, is it equal to the cur one
+// since you can't keep placing the same player's pieces
     int UnplacedIndex = player == SIX_MENS_MORRIS_PLAYER_R ? 0 : 1;
-    if((player == DTurn) and DUnplacedPieces[UnplacedIndex]){
+
+    // if((player == DTurn) and DUnplacedPieces[UnplacedIndex]){
+    if((player == SIX_MENS_MORRIS_PLAYER_R) and DUnplacedPieces[UnplacedIndex]){
         if((0 <= where) and (where < SIX_MENS_MORRIS_POSITIONS)){
             if(SIX_MENS_MORRIS_EMPTY == DPositions[where]){
                 for(int Index = 0; Index < SIX_MENS_MORRIS_POSITIONS; Index++){
@@ -180,6 +191,19 @@ bool CSixMensMorrisBoard::Place(char player, int where){
                 return true;
             }
         }
+    }
+    else if(player == SIX_MENS_MORRIS_PLAYER_W and DUnplacedPieces[UnplacedIndex]){
+        if((0 <= where) and (where < SIX_MENS_MORRIS_POSITIONS)){
+            if(SIX_MENS_MORRIS_EMPTY == DPositions[where]){
+                for(int Index = 0; Index < SIX_MENS_MORRIS_POSITIONS; Index++){
+                    DPreviousPositions[Index] = DPositions[Index];       
+                }
+                DPositions[where] = player;
+                DUnplacedPieces[UnplacedIndex]--;
+                return true;
+            }
+        }
+
     }
     return false;
 }
