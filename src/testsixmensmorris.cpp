@@ -4,27 +4,49 @@
 TEST(SixMensMorrisBoardTest, DefaultBoardTest){
     // Needs to test that default board is correct
     CSixMensMorrisBoard Board;  // create a board
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:6 RC:0  WU:6 WC:0\no---------o---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    o----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
-
+    
+    EXPECT_EQ(std::string(Board),
+                            ">RU:6 RC:0  WU:6 WC:0\n"
+                            "o---------o---------o      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    o----o----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------o\n");
     EXPECT_EQ(std::string(Board), Board.ToString());
-    EXPECT_EQ(Board.PlayerAtPosition(0), SIX_MENS_MORRIS_EMPTY); // it's empty
-
+    // basic checking here
     EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_R); // check whose turn
-
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 6); // every player should have six pieces 
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 6); // as same as above
 
-    // EXPECT_TRUE(Board.Place(SIX_MENS_MORRIS_PLAYER_R, 0)); // place the first piece on the board, pos is 0
-    // EXPECT_FALSE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_R, 0)); 
-    // EXPECT_FALSE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_R, 1));
-    // EXPECT_FALSE(Board.CanRemove(SIX_MENS_MORRIS_PLAYER_R)); // 还不到三个棋子不可以remove,而且不确定在不在
-    // 一条线上
-    
-    EXPECT_EQ(Board.PlayerAtPosition(0), SIX_MENS_MORRIS_EMPTY); // just testing R is on the pos 0
+    int i = 0;
+    while(i < SIX_MENS_MORRIS_POSITIONS)
+    {
+        EXPECT_EQ(Board.PlayerAtPosition(i), SIX_MENS_MORRIS_EMPTY);
+        i++;
+    }
+        
+    EXPECT_TRUE(Board.Place('R', 0));
+    EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_W);
 
-    // EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_W); // R turn passed , so W takes the turn
-    // EXPECT_TRUE(Board.Place(SIX_MENS_MORRIS_PLAYER_W, 1)); // place W on 1 so I can test MOVE()
+    EXPECT_TRUE(Board.CanMove('R', 0));  // want to double make sure 
+    // that the only thing determines can it move or not
+    // is not is it in the moving phase but is it's adjacent is empty or not
+    EXPECT_FALSE(Board.Move('R', 0, 1));
+
+    EXPECT_FALSE(Board.CanRemove('R'));
+    EXPECT_FALSE(Board.CanRemove('W'));
+
+    EXPECT_FALSE(Board.Remove('R', 0));
+    EXPECT_FALSE(Board.Remove('W', 0));
+
 
     EXPECT_FALSE(Board.GameOver());
 }
@@ -76,8 +98,11 @@ TEST(SixMensMorrisBoardTest, SetBoardTest){
 TEST(SixMensMorrisBoardTest, ResetBoardTest){
     // Needs to test that resetting to default board is correct
     CSixMensMorrisBoard Board;
+    EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_R);
     Board.Place(SIX_MENS_MORRIS_PLAYER_R, 0);
+    EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_W);
     Board.Place(SIX_MENS_MORRIS_PLAYER_W, 1);
+    EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_R);
     EXPECT_EQ(Board.PlayerAtPosition(0), SIX_MENS_MORRIS_PLAYER_R);
 
 
@@ -110,29 +135,88 @@ TEST(SixMensMorrisBoardTest, PlacementTest){
     CSixMensMorrisBoard Board;  // create a board
 
     EXPECT_TRUE(Board.Place(SIX_MENS_MORRIS_PLAYER_R, 0)); // place the first piece on the board, pos is 0
+    EXPECT_EQ(Board.PlayerAtPosition(0), SIX_MENS_MORRIS_PLAYER_R);
     EXPECT_EQ(Board.ToString(), 
-    "RU:5 RC:1  >WU:6 WC:0\nR---------o---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    o----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
+    " RU:5 RC:0 >WU:6 WC:0\nR---------o---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    o----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
     EXPECT_EQ(std::string(Board), 
-        "RU:5 RC:1  >WU:6 WC:0\nR---------o---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    o----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
-    
+    " RU:5 RC:0 >WU:6 WC:0\nR---------o---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    o----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
     EXPECT_EQ(std::string(Board), Board.ToString());
 
 
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 5); // already placed one, 5 left
-    EXPECT_FALSE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_R, 0)); 
-    EXPECT_TRUE(Board.CanRemove(SIX_MENS_MORRIS_PLAYER_R)); // 上面有东西可以remove, 说明R已经放过棋子了
     EXPECT_EQ(Board.PlayerAtPosition(0), SIX_MENS_MORRIS_PLAYER_R); // just testing R is on the pos 0
 
+    EXPECT_EQ(std::string(Board),
+                            " RU:5 RC:0 >WU:6 WC:0\n"
+                            "R---------o---------o      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    o----o----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------o\n");
     EXPECT_FALSE(Board.Place(SIX_MENS_MORRIS_PLAYER_W, 0)); // already placed R on 0, so W can not be placed
     EXPECT_TRUE(Board.Place(SIX_MENS_MORRIS_PLAYER_W, 1)); // placed W's first piece on pos 1
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:5 RC:1  WU:5 WC:1\nR---------W---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    o----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
+    
+    EXPECT_EQ(std::string(Board),
+                            ">RU:5 RC:0  WU:5 WC:0\n"
+                            "R---------W---------o      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    o----o----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------o\n");
     
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 5); // already placed one, 5 left
-    EXPECT_FALSE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_W, 1)); 
-    EXPECT_TRUE(Board.CanRemove(SIX_MENS_MORRIS_PLAYER_W)); // 上面有东西可以remove, 说明R已经放过棋子了
     EXPECT_EQ(Board.PlayerAtPosition(1), SIX_MENS_MORRIS_PLAYER_W); // just testing R is on the pos 0
 
+    Board.Place('R', 15);
+
+    EXPECT_EQ(std::string(Board),
+                            " RU:4 RC:0 >WU:5 WC:0\n"
+                            "R---------W---------o      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    o----o----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------R\n");
+    Board.Place('W', 10);
+    EXPECT_EQ(Board.ToString(),
+                            ">RU:4 RC:0  WU:4 WC:0\n"
+                            "R---------W---------o      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    o----o----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    W----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------R\n");
+    EXPECT_EQ(std::string(Board), Board.ToString());
 }
 
 TEST(SixMensMorrisBoardTest, PlacementMillTest){
@@ -150,12 +234,25 @@ TEST(SixMensMorrisBoardTest, PlacementMillTest){
     Board.Place(SIX_MENS_MORRIS_PLAYER_R, 2);
     // a mill
     EXPECT_TRUE(Board.CanRemove(SIX_MENS_MORRIS_PLAYER_R));
-    EXPECT_TRUE(Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 6));
+    EXPECT_TRUE(Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 7));
     Board.Place(SIX_MENS_MORRIS_PLAYER_W, 6);
 
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:3 RC:3  WU:3 WC:2\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----W         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
 
+    EXPECT_EQ(Board.ToString(),
+                            ">RU:3 RC:1  WU:3 WC:0\n"
+                            "R---------R---------R      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    W----o----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "W----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------o\n");
 
     Board.ResetBoard();
 
@@ -167,9 +264,22 @@ TEST(SixMensMorrisBoardTest, PlacementMillTest){
 
     // no mill
 
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:4 RC:2  WU:4 WC:2\nR---------W---------R     0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\nW----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
 
+    EXPECT_EQ(Board.ToString(),
+                            ">RU:4 RC:0  WU:4 WC:0\n"
+                            "R---------W---------R      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    W----o----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------o\n");
 
     EXPECT_FALSE(Board.CanRemove(SIX_MENS_MORRIS_PLAYER_W));
 
@@ -179,154 +289,112 @@ TEST(SixMensMorrisBoardTest, MoveTest){
     // Needs to test that movement is correct
     CSixMensMorrisBoard Board;  // create a board
     Board.Place(SIX_MENS_MORRIS_PLAYER_R, 0);
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 4);
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:5 RC:1  WU:5 WC:1\nR---------o---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    o----W----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
+    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 1);
 
+    EXPECT_EQ(Board.ToString(),
+                            ">RU:5 RC:0  WU:5 WC:0\n"
+                            "R---------W---------o      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    o----o----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------o\n");
 
     EXPECT_FALSE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_R, 1)); // not sure about move is happening
     //after we have placed all the pieces or we can move whenever we want
     EXPECT_FALSE(Board.Move(SIX_MENS_MORRIS_PLAYER_R, 2, 1));
     EXPECT_FALSE(Board.Move(SIX_MENS_MORRIS_PLAYER_R, 0, 1));
 
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 1);// r 2
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 3);// w 2
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 2);// r 3
+    Board.Place('R', 3);
+    Board.Place('W', 2);
 
-    EXPECT_EQ(Board.ToString(), 
-    "RU:3 RC:3  >WU:4 WC:2\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----W----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
+    Board.Place('R', 4);
+    Board.Place('W', 5);
 
-    // R created a mill
-    EXPECT_TRUE(Board.CanRemove(SIX_MENS_MORRIS_PLAYER_R));
-    EXPECT_TRUE(Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 4));
+    Board.Place('R', 10);
+    Board.Place('W', 7);
 
-    EXPECT_EQ(Board.ToString(), 
-    "RU:3 RC:3  >WU:4 WC:1\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
+    EXPECT_EQ(Board.UnplacedPieces('R'), 2);
+    EXPECT_EQ(Board.UnplacedPieces('R'), 2);
+
+    Board.Place('R', 6);
+    Board.Place('W', 13);
+
+    Board.Place('R', 15);
+    Board.Place('W', 9);
+
+    EXPECT_EQ(Board.UnplacedPieces('R'), 0);
+    EXPECT_EQ(Board.UnplacedPieces('W'), 0);
+
+    EXPECT_EQ(Board.ToString(),
+                            ">RU:0 RC:0  WU:0 WC:0\n"
+                            "R---------W---------W      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    R----R----W    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "R----W         o----W\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    R----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "W---------o---------R\n");
+
+    EXPECT_EQ(Board.ToString(), std::string(Board));
+
+    // can move
+    EXPECT_EQ(Board.PlayerAtPosition(15), SIX_MENS_MORRIS_PLAYER_R);
+
+    EXPECT_TRUE(Board.CanMove('R', 15));
+    EXPECT_TRUE(Board.Move('R', 15, 14));
+    EXPECT_EQ(Board.PlayerAtPosition(15), SIX_MENS_MORRIS_EMPTY);
+    EXPECT_EQ(Board.PlayerAtPosition(14), SIX_MENS_MORRIS_PLAYER_R);
+
+    EXPECT_FALSE(Board.CanMove('R', 0));
+    EXPECT_FALSE(Board.CanMove('W', 1));
+
+    EXPECT_FALSE(Board.Move('R', 0, 1));
+    EXPECT_FALSE(Board.Move('W', 1, 15));
+    EXPECT_TRUE(Board.Move('W', 9, 8));
+    EXPECT_FALSE(Board.CanMove('W',5));
+    EXPECT_FALSE(Board.Move('W', 8, 9));
+
+    EXPECT_EQ(Board.PlayerAtPosition(9), SIX_MENS_MORRIS_EMPTY);
+    EXPECT_EQ(Board.PlayerAtPosition(8), SIX_MENS_MORRIS_PLAYER_W);
 
 
-    EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 3);
-    EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 4);
+    EXPECT_EQ(Board.ToString(),
+                            ">RU:0 RC:0  WU:0 WC:0\n"
+                            "R---------W---------W      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    R----R----W    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "R----W         W----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    R----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "W---------R---------o\n");
 
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 4);// w 3
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 6);// r 4
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 5);// w 4
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:2 RC:4  WU:2 WC:3\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----W----W    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\nR----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
+    EXPECT_EQ(Board.ToString(), std::string(Board));
 
-
-    EXPECT_TRUE(Board.CanRemove(SIX_MENS_MORRIS_PLAYER_W));
-    EXPECT_TRUE(Board.Remove(SIX_MENS_MORRIS_PLAYER_R, 2));
-
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:2 RC:3  WU:2 WC:3\nR---------R---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----W----W    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\nR----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
-
-
-    EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 2);
-    EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 2);
-
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 2); // R 5
-    // create a mill
-
-    EXPECT_EQ(Board.ToString(), 
-    "RU:1 RC:4  >WU:2 WC:3\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----W----W    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\nR----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
+    EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_R);
+    EXPECT_EQ(Board.PlayerAtPosition(9), SIX_MENS_MORRIS_EMPTY);
 
 
-    EXPECT_TRUE(Board.CanRemove(SIX_MENS_MORRIS_PLAYER_R));
-    EXPECT_TRUE(Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 5));
-
-    EXPECT_EQ(Board.ToString(), 
-    "RU:1 RC:4  >WU:2 WC:2\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----W----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\nR----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
-
-
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 5); // W 5
-    // create a mill
-    Board.CanRemove(SIX_MENS_MORRIS_PLAYER_W);
-    Board.Remove(SIX_MENS_MORRIS_PLAYER_R, 6);
-
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:1 RC:3  WU:1 WC:3\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----W----W    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
-
-
-    EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 1);
-    EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 1);
-
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 6); // R 6
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 9); // R 6
-
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:0 RC:4  WU:0 WC:4\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----W----W    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\nR----o         o----W\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
     
-
-    if(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W) == Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R) == 0)
-    {
-        EXPECT_TRUE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_R, 6));
-        EXPECT_TRUE(Board.Move(SIX_MENS_MORRIS_PLAYER_R, 6, 7));
-
-        EXPECT_TRUE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_W, 5));
-        EXPECT_TRUE(Board.Move(SIX_MENS_MORRIS_PLAYER_W, 5, 8));
-
-        EXPECT_TRUE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_R, 0));
-        EXPECT_TRUE(Board.Move(SIX_MENS_MORRIS_PLAYER_R, 0, 6));
-
-        EXPECT_FALSE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_R, 1));
-        EXPECT_FALSE(Board.Move(SIX_MENS_MORRIS_PLAYER_R, 1, 4));
-    }
-
-
-
-    // second test
-    // EXPECT_EQ(Board.ToString(), 
-    // "o---------o---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |6-7   8-9\n|    o----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o");
-
-    Board.ResetBoard();
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:6 RC:0  WU:6 WC:0\no---------o---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    o----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
-
-    EXPECT_EQ(Board.PlayerAtPosition(0), '\0');
-    EXPECT_EQ(Board.PlayerAtPosition(2), '\0');
-
-// 1
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 0);
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 1);
-//2
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 2);
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 3);
-//3
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 4);
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 5);
-//4
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 6);
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 7);
-//5
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 8);
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 9);
-    //6
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 10);
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 11);
-
-    // check unplaced pieces.
-
-    EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 0);
-    EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 0);
-
-    if(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R) == Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W) == 0)
-    {
-        // follow the player turn, R first
-        EXPECT_TRUE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_R, 6));
-        EXPECT_TRUE(Board.Move(SIX_MENS_MORRIS_PLAYER_R, 6, 13));
-        EXPECT_FALSE(Board.Move(SIX_MENS_MORRIS_PLAYER_R, 6, 0));
-
-        EXPECT_TRUE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_W, 11));
-        EXPECT_TRUE(Board.Move(SIX_MENS_MORRIS_PLAYER_W, 11, 12));
-        EXPECT_FALSE(Board.Move(SIX_MENS_MORRIS_PLAYER_W, 9, 8));
-
-    }
-    else{
-        throw "Unplaced piece is not right";
-    }
-
-
-
 
 
 }
@@ -334,37 +402,121 @@ TEST(SixMensMorrisBoardTest, MoveTest){
 TEST(SixMensMorrisBoardTest, MoveMillTest){
     // Needs to test that movement creating a mill is correct with removal
     CSixMensMorrisBoard Board;  // create a board
-    // the correct version
+    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 0);
+    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 1);
 
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 0); // 1
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 8);
+    EXPECT_EQ(Board.ToString(),
+                            ">RU:5 RC:0  WU:5 WC:0\n"
+                            "R---------W---------o      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    o----o----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------o\n");
 
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 1); // 2
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 6);
+    EXPECT_FALSE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_R, 1)); // not sure about move is happening
+    //after we have placed all the pieces or we can move whenever we want
+    EXPECT_FALSE(Board.Move(SIX_MENS_MORRIS_PLAYER_R, 2, 1));
+    EXPECT_FALSE(Board.Move(SIX_MENS_MORRIS_PLAYER_R, 0, 1));
 
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 7); // 3
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 3);
+    Board.Place('R', 3);
+    Board.Place('W', 2);
 
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 13); // 4
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 10);
+    Board.Place('R', 4);
+    Board.Place('W', 5);
 
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 9); // 5
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 12);
+    Board.Place('R', 10);
+    Board.Place('W', 7);
 
-    Board.Place(SIX_MENS_MORRIS_PLAYER_R, 4); // 6
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 15);
+    EXPECT_EQ(Board.UnplacedPieces('R'), 2);
+    EXPECT_EQ(Board.UnplacedPieces('R'), 2);
 
-    EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 0);
-    EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 0);
+    Board.Place('R', 6);
+    Board.Place('W', 13);
 
-    // let's check move
+    Board.Place('R', 15);
+    Board.Place('W', 9);
 
-    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 9, 2);
-    // should create a mill
-    EXPECT_TRUE(Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 6));
+    EXPECT_EQ(Board.UnplacedPieces('R'), 0);
+    EXPECT_EQ(Board.UnplacedPieces('W'), 0);
 
-     EXPECT_EQ(Board.ToString(), 
-    "RU:0 RC:6  >WU:0 WC:5\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |      6-7   8-9\n|    W----R----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |        LEGEND\no----R         W----o\n|    |         |    |\n|    |         |    |\n|    W----o----W    |\n|         |         |\n|         |         |\nR---------o---------W\n");
+    EXPECT_EQ(Board.ToString(),
+                            ">RU:0 RC:0  WU:0 WC:0\n"
+                            "R---------W---------W      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    R----R----W    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "R----W         o----W\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    R----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "W---------o---------R\n");
+
+    Board.Move('R', 10, 11);
+    EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_W);
+    Board.Move('W', 13, 14);
+
+    EXPECT_EQ(Board.PlayerAtPosition(10), SIX_MENS_MORRIS_EMPTY);
+    EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_R);
+    
+    Board.Move('R', 11, 10);
+    EXPECT_EQ(Board.PlayerAtPosition(10), SIX_MENS_MORRIS_PLAYER_R);
+    Board.Move('W', 14, 11);
+
+    Board.Move('R', 6, 13);
+    Board.Move('W', 9, 8);
+
+    Board.Move('R', 13, 6);
+    Board.Move('W', 11, 12);
+    // checking 
+
+    EXPECT_EQ(Board.PlayerAtPosition(12), SIX_MENS_MORRIS_PLAYER_W);
+    EXPECT_EQ(Board.PlayerAtPosition(0), SIX_MENS_MORRIS_PLAYER_R);
+    EXPECT_EQ(Board.PlayerAtPosition(1), SIX_MENS_MORRIS_PLAYER_W);
+    EXPECT_EQ(Board.PlayerAtPosition(2), SIX_MENS_MORRIS_PLAYER_W);
+    EXPECT_EQ(Board.PlayerAtPosition(3), SIX_MENS_MORRIS_PLAYER_R);
+    EXPECT_EQ(Board.PlayerAtPosition(4), SIX_MENS_MORRIS_PLAYER_R);
+    EXPECT_EQ(Board.PlayerAtPosition(5), SIX_MENS_MORRIS_PLAYER_W);
+    EXPECT_EQ(Board.PlayerAtPosition(6), SIX_MENS_MORRIS_PLAYER_R);
+    EXPECT_EQ(Board.PlayerAtPosition(7), SIX_MENS_MORRIS_PLAYER_W);
+    EXPECT_EQ(Board.PlayerAtPosition(8), SIX_MENS_MORRIS_PLAYER_W);
+    EXPECT_EQ(Board.PlayerAtPosition(15), SIX_MENS_MORRIS_PLAYER_R);
+    // create a mill
+
+    EXPECT_TRUE(Board.CanRemove('W'));
+    EXPECT_TRUE(Board.Remove('R', 6));
+    EXPECT_EQ(Board.PlayerAtPosition(6), SIX_MENS_MORRIS_EMPTY);
+
+    EXPECT_EQ(Board.ToString(),
+                            ">RU:0 RC:0  WU:0 WC:1\n"
+                            "R---------W---------W      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    R----R----W    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----W         W----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    R----o----W    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------R\n");
+
+// second test here
+
+
 
 
 
@@ -373,11 +525,23 @@ TEST(SixMensMorrisBoardTest, MoveMillTest){
 TEST(SixMensMorrisBoardTest, TwoPieceGameOverTest){
     // Needs to test that game over is correct when only two pieces left
     CSixMensMorrisBoard Board;
-
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:6 RC:0  WU:6 WC:0\no---------o---------o      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |\n6-7   8-9\n|    o----o----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
-    
-    int OnboardR = 0;
+    EXPECT_FALSE(Board.GameOver());
+    EXPECT_EQ(std::string(Board),
+                            ">RU:6 RC:0  WU:6 WC:0\n"
+                            "o---------o---------o      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    o----o----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------o\n");
+    // int OnboardR = 0;
     int OnboardW = 0;
 
     // case 1 : opponents only have 2 pieces left
@@ -403,8 +567,21 @@ TEST(SixMensMorrisBoardTest, TwoPieceGameOverTest){
     Board.Place(SIX_MENS_MORRIS_PLAYER_W, 3);
     OnboardW++; // 2
 
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:3 RC:3  WU:3 WC:2\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |6-7   8-9\n|    W----W----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |\no----o         o----o\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\no---------o---------o\n");
+    EXPECT_EQ(std::string(Board),
+                            ">RU:3 RC:1  WU:3 WC:0\n"
+                            "R---------R---------R      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    W----W----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------o\n");
 
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 3);
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 3);
@@ -412,6 +589,7 @@ TEST(SixMensMorrisBoardTest, TwoPieceGameOverTest){
     Board.Place(SIX_MENS_MORRIS_PLAYER_R, 9);// 4
     Board.Place(SIX_MENS_MORRIS_PLAYER_W, 6);
     OnboardW++; // 3
+    EXPECT_FALSE(Board.GameOver());
 
     Board.Place(SIX_MENS_MORRIS_PLAYER_R, 15);// 5
     // create a mill
@@ -426,45 +604,45 @@ TEST(SixMensMorrisBoardTest, TwoPieceGameOverTest){
     Board.Place(SIX_MENS_MORRIS_PLAYER_W, 7);
     OnboardW++;// 4
 
-    EXPECT_EQ(Board.ToString(), 
-    ">RU:0 RC:6  WU:0 WC:4\nR---------R---------R      0---1---2\n|         |         |      | 3-4-5 |\n|         |         |6-7   8-9\n|    W----W----o    |      | A-B-C |\n|    |         |    |      D---E---F\n|    |         |    |\nW----W         o----R\n|    |         |    |\n|    |         |    |\n|    o----o----o    |\n|         |         |\n|         |         |\nR---------o---------R\n");
+    EXPECT_EQ(std::string(Board),
+                            ">RU:0 RC:2  WU:0 WC:0\n"
+                            "R---------R---------R      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    W----W----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "W----W         o----R\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "R---------o---------R\n");
 
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 0);
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 0);
+    EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_R);
 
     Board.Move(SIX_MENS_MORRIS_PLAYER_R, 15, 14);
-    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 4, 5);
+    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 7, 10);
 
     Board.Move(SIX_MENS_MORRIS_PLAYER_R, 9, 15);
-    // A mill
+    // EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_W);    
+    // amill
 
-    Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 6);
-    OnboardW--;// 3
+    Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 4);
+    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 3, 4);
 
-    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 5, 4);
+    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 2, 9);
+    EXPECT_TRUE(Board.Move(SIX_MENS_MORRIS_PLAYER_W, 4, 3));
+    // std::cout << std::string(Board) << std::endl;
 
-    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 0, 6);
-    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 4, 5);
-
-    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 1, 0);
-    // a mill
-
+    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 1, 2);
+    // amill
     Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 3);
-    OnboardW--; // 2
-
-    if(OnboardW == 2)
-    {
-        std::cout << "  passed  2 piece over " << std::endl;
-    }
-    else{
-        throw " Didn't pass the 2 piece over line 430 ";
-    }
-
+    // std::cout << std::string(Board) << std::endl;
     EXPECT_TRUE(Board.GameOver());
-
-
-
-
 }
 
 TEST(SixMensMorrisBoardTest, NoMoveGameOverTest){
@@ -486,6 +664,23 @@ TEST(SixMensMorrisBoardTest, NoMoveGameOverTest){
 
     Board.Place(SIX_MENS_MORRIS_PLAYER_W, 3);
 
+    EXPECT_EQ(std::string(Board),
+                            ">RU:3 RC:1  WU:3 WC:0\n"
+                            "R---------R---------R      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    W----W----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----o         o----o\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----o    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------o\n");
+    EXPECT_EQ(std::string(Board), Board.ToString());
+
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 3);
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 3);
 
@@ -496,55 +691,66 @@ TEST(SixMensMorrisBoardTest, NoMoveGameOverTest){
     // a mill
 
     Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 8);
+    
 
     Board.Place(SIX_MENS_MORRIS_PLAYER_W, 8);
 
     Board.Place(SIX_MENS_MORRIS_PLAYER_R, 12);// 6
-    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 5);
+    Board.Place(SIX_MENS_MORRIS_PLAYER_W, 7);
+
+    EXPECT_EQ(std::string(Board),
+                            ">RU:0 RC:2  WU:0 WC:0\n"
+                            "R---------R---------R      0---1---2\n"
+                            "|         |         |      | 3-4-5 |\n"
+                            "|         |         |      6-7   8-9\n"
+                            "|    W----W----o    |      | A-B-C |\n"
+                            "|    |         |    |      D---E---F\n"
+                            "|    |         |    |        LEGEND\n"
+                            "o----W         W----R\n"
+                            "|    |         |    |\n"
+                            "|    |         |    |\n"
+                            "|    o----o----R    |\n"
+                            "|         |         |\n"
+                            "|         |         |\n"
+                            "o---------o---------R\n");
 
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_R), 0);
     EXPECT_EQ(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W), 0);
 
-    if(Board.UnplacedPieces(SIX_MENS_MORRIS_PLAYER_W) != 0)
-    {
-        throw "  unplaced tracking has some issue ";
-    }
+    char thePositions[SIX_MENS_MORRIS_POSITIONS] = {SIX_MENS_MORRIS_PLAYER_R, SIX_MENS_MORRIS_PLAYER_R, SIX_MENS_MORRIS_PLAYER_R,
+                                                 SIX_MENS_MORRIS_PLAYER_W, SIX_MENS_MORRIS_PLAYER_W, SIX_MENS_MORRIS_EMPTY,
+                                                 SIX_MENS_MORRIS_EMPTY, SIX_MENS_MORRIS_PLAYER_W, SIX_MENS_MORRIS_PLAYER_W, SIX_MENS_MORRIS_PLAYER_R,
+                                                 SIX_MENS_MORRIS_EMPTY, SIX_MENS_MORRIS_EMPTY, SIX_MENS_MORRIS_PLAYER_R,
+                                                 SIX_MENS_MORRIS_EMPTY, SIX_MENS_MORRIS_EMPTY, SIX_MENS_MORRIS_PLAYER_R};
 
+    for (int Index = 0; Index < SIX_MENS_MORRIS_POSITIONS; Index++){
+        EXPECT_EQ(Board.PlayerAtPosition(Index), thePositions[Index]);
+    }
     // start moving
 
-    if(Board.PlayerTurn() != SIX_MENS_MORRIS_PLAYER_R)
-    {
-        throw "  Player turn has some issue";
-    }
+    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 15, 14);
+    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 7, 10);
 
     Board.Move(SIX_MENS_MORRIS_PLAYER_R, 0, 6);
-    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 3, 7);
+    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 4, 5);
 
-    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 1, 0);
-    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 4, 1);
+    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 1, 4);
+    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 10, 11);
 
-    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 15, 14);
-    if(Board.CanMove(SIX_MENS_MORRIS_PLAYER_W, 3))
-    {
-        throw "  CanMove has some problem  ";
-    }
-    else{
-        std::cout << "  this function is fine !! YEAH!";
-    }
-    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 3, 4);
+    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 6, 7);
+    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 11, 10);
 
-    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 7, 3);
-    Board.Move(SIX_MENS_MORRIS_PLAYER_W, 8, 12);
+    Board.Move(SIX_MENS_MORRIS_PLAYER_R, 14, 11);
 
-    if(Board.CanMove(SIX_MENS_MORRIS_PLAYER_W, 1) || Board.CanMove(SIX_MENS_MORRIS_PLAYER_W, 4) || Board.CanMove(SIX_MENS_MORRIS_PLAYER_W, 5) || Board.CanMove(SIX_MENS_MORRIS_PLAYER_W, 8))
-    {
-        throw "  Can Move is not right   ";
-    }
-    else{
-        std::cout << "   no problems " << std::endl;
-    }
+    
+
+    // std::cout << std::string(Board) << std::endl;
+
 
     EXPECT_TRUE(Board.GameOver());
+    
+
+    //
 
 }
 
@@ -553,6 +759,7 @@ TEST(SixMensMorrisBoardTest, BadParametersTest){
     CSixMensMorrisBoard Board;
     Board.Place(SIX_MENS_MORRIS_PLAYER_R, 0);
     Board.Place(SIX_MENS_MORRIS_PLAYER_W, 1);
+    EXPECT_EQ(Board.PlayerTurn(), SIX_MENS_MORRIS_PLAYER_R);
 
     EXPECT_FALSE(Board.Place('Z', 2));
     EXPECT_FALSE(Board.Place(SIX_MENS_MORRIS_PLAYER_R, 88));
@@ -564,23 +771,15 @@ TEST(SixMensMorrisBoardTest, BadParametersTest){
     EXPECT_FALSE(Board.CanMove(SIX_MENS_MORRIS_PLAYER_R, 88));
 
     EXPECT_FALSE(Board.CanRemove('Z'));
+
     
     EXPECT_FALSE(Board.Move('Z', 0, 1));
-    EXPECT_TRUE(Board.Move(SIX_MENS_MORRIS_PLAYER_W, 1, 2));
+
     EXPECT_FALSE(Board.Move(SIX_MENS_MORRIS_PLAYER_W, 2, 8));
 
+
     EXPECT_FALSE(Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 0));
-    EXPECT_TRUE(Board.Remove(SIX_MENS_MORRIS_PLAYER_R, 0));
     EXPECT_FALSE(Board.Remove(SIX_MENS_MORRIS_PLAYER_W, 88));
 
-
-
-
-
-
-
-
-
-    
 }
 
